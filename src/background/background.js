@@ -21,10 +21,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   
   return true
 })
-
-// HMR support
-if (import.meta.hot) {
-  import.meta.hot.accept(() => {
-    console.log('Background HMR updated!')
-  })
-}

@@ -47,10 +47,3 @@ badge.addEventListener('click', () => {
 })
 
 document.body.appendChild(badge)
-
-// HMR support
-if (import.meta.hot) {
-  import.meta.hot.accept(() => {
-    console.log('Content script HMR updated!')
-  })
-}
