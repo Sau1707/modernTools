@@ -19,10 +19,6 @@ export default defineManifest({
         matches: ["https://*.grepolis.com/*"],
     }],
     permissions: [
-        'sidePanel',
         'contentSettings',
-    ],
-    side_panel: {
-        default_path: 'src/sidepanel/index.html',
-    },
+    ]
 })
