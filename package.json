@@ -1,0 +1,18 @@
+{
+  "name": "moderntools",
+  "version": "1.0.0",
+  "description": "A modern Chrome extension built with Vite and crxjs",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["chrome-extension", "vite", "crxjs"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.2.0",
+    "vite": "^7.1.7"
+  }
+}
