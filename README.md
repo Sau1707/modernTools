@@ -1,11 +1,10 @@
 # modernTools
 
-A modern Chrome extension built with Vite + crxjs (bundler-managed HMR).
+A modern Chrome extension built with Vite + crxjs.
 
 ## Features
 
 - ⚡️ **Vite** - Fast build tool and development server
-- 🔥 **Hot Module Replacement (HMR)** - Instant updates during development
 - 🎨 **Modern UI** - Clean, gradient-based popup interface
 - 🛠️ **Content Script** - Interactive badge on web pages
 - 📦 **Service Worker** - Background processing with Manifest V3
@@ -26,7 +25,7 @@ npm install
 
 ### Development
 
-Start the development server with HMR:
+Start the development server:
 ```bash
 npm run dev
 ```
@@ -38,7 +37,7 @@ This will create a `dist` folder with the extension build. To load it in Chrome:
 3. Click "Load unpacked"
 4. Select the `dist` folder from this project
 
-Now you can develop with hot reloading! Changes to your code will automatically update in the extension.
+**Note:** After making code changes, you'll need to manually reload the extension in Chrome to see updates. Click the reload icon on the extension card in `chrome://extensions/`.
 
 ### Build for Production
 
@@ -73,7 +72,6 @@ modernTools/
 - **Popup**: Click the extension icon to open a popup that can interact with the current page
 - **Content Script**: Adds a floating badge to every webpage you visit
 - **Background Worker**: Handles extension lifecycle and message passing
-- **HMR**: All scripts support hot module replacement for instant development feedback
 
 ## Technologies
 
