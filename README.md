@@ -31,7 +31,11 @@ Start the development server with HMR:
 npm run dev
 ```
 
-This will create a `dist` folder with the extension build. To load it in Chrome:
+The development server will start on `http://localhost:5173/`. You can:
+- View the dev server dashboard at `http://localhost:5173/`
+- Preview individual components like `http://localhost:5173/src/popup/popup.html`
+
+This will also create a `dist` folder with the extension build. To load it in Chrome:
 
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable "Developer mode" (toggle in the top right)
