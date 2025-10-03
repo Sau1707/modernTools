@@ -14,10 +14,17 @@ export default defineManifest({
         },
         default_popup: 'src/popup/index.html',
     },
-    content_scripts: [{
-        js: ['src/content/main.js'],
-        matches: ["https://*.grepolis.com/*"],
-    }],
+    content_scripts: [
+        {
+            js: ['src/content/main.js'],
+            matches: ["https://*.grepolis.com/*"],
+        },
+        {
+            js: ['src/content/window-script.js'],
+            matches: ["https://*.grepolis.com/*"],
+            world: 'MAIN',
+        }
+    ],
     permissions: [
         'contentSettings',
     ]
