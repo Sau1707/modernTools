@@ -1,0 +1,8 @@
+class Tool {
+    constructor() {
+    }
+
+    destroy() {
+
+    }
+}
