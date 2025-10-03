@@ -7,8 +7,6 @@
  */
 
 
-console.log("[CRXJS] Hello world from inject script!")
-
 function injectScript(file_path, tag) {
     var node = document.getElementsByTagName(tag)[0];
     var script = document.createElement('script');
@@ -16,4 +14,4 @@ function injectScript(file_path, tag) {
     script.setAttribute('src', file_path);
     node.appendChild(script);
 }
-injectScript(chrome.runtime.getURL('content.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/main.js'), 'body');

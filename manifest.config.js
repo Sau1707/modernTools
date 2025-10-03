@@ -17,15 +17,15 @@ export default defineManifest({
     content_scripts: [{
         js: ["inject.js"],
         all_frames: true,
-        matches: ["http://*/*", "https://*/*"],
+        matches: ["*://*.grepolis.com/*"],
     }],
     permissions: [
         'contentSettings',
     ],
     web_accessible_resources: [
         {
-            resources: ["content.js"],
-            matches: ["http://*/*", "https://*/*"],
+            resources: ["src/content/*"],
+            matches: ["*://*.grepolis.com/*"],
             use_dynamic_url: true,
         }
     ]
