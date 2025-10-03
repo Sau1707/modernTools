@@ -15,10 +15,18 @@ export default defineManifest({
         default_popup: 'src/popup/index.html',
     },
     content_scripts: [{
-        js: ['src/content/main.js'],
-        matches: ["https://*.grepolis.com/*"],
+        js: ["inject.js"],
+        all_frames: true,
+        matches: ["http://*/*", "https://*/*"],
     }],
     permissions: [
         'contentSettings',
+    ],
+    web_accessible_resources: [
+        {
+            resources: ["content.js"],
+            matches: ["http://*/*", "https://*/*"],
+            use_dynamic_url: true,
+        }
     ]
 })

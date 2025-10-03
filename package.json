@@ -12,5 +12,8 @@
     "@types/chrome": "^0.1.1",
     "vite": "^7.0.5",
     "vite-plugin-zip-pack": "^1.2.4"
+  },
+  "dependencies": {
+    "vite-plugin-restart": "^1.0.0"
   }
 }
