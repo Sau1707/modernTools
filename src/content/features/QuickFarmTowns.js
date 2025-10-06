@@ -1,3 +1,6 @@
+// QuickFarmTowns:
+// https://it.forum.grepolis.com/index.php?threads/script-quickfarmtown.24840/
+// Adds quick action buttons to farm towns on the island view
 
 const css = `
 a.button.disabled .middle { background-position: -14px -184px; }
