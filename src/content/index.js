@@ -1,8 +1,12 @@
 class Tool {
-    constructor() {
+    enable() {
+        console.log('Base tool enabled');
     }
 
-    destroy() {
-
+    disable() {
+        console.log('Base tool disabled');
     }
+
 }
+
+window.Tool = Tool;

@@ -1,15 +1,46 @@
 function addModernTool($menu) {
-    if ($menu.find('#modern-tool-element1').length) return;
+    // Avoid duplicates
+    if ($menu.find('#modern-settings').length) return;
+
+    const getSettingsMap = () => {
+        try {
+            const fn = window.tools && typeof window.tools.settings === 'function' ? window.tools.settings : null;
+            const map = fn ? fn() : {};
+            return (map && typeof map === 'object') ? map : {};
+        } catch (err) {
+            console.error('ModernTool: failed to read settings map', err);
+            return {};
+        }
+    };
+
+    const settingsMap = getSettingsMap();
+    const toolKeys = Object.keys(settingsMap);
+
+    if (!toolKeys.length) {
+        console.warn('ModernTool: no tools found in window.tools.settings()');
+        return;
+    }
+
+    const toSlug = (s) => String(s).toLowerCase().replace(/[^\w\-]+/g, '-').replace(/^-+|-+$/g, '');
+
+    // Build dynamic menu HTML
+    const itemsHTML = toolKeys.map(key => {
+        const slug = toSlug(key);
+        return [
+            '  <li>',
+            `    <a class="modern-tool-item" data-tool="${encodeURIComponent(key)}" data-slug="${slug}" href="#">${key}</a>`,
+            '  </li>'
+        ].join('');
+    }).join('');
 
     const modernToolHTML = [
-        '<b>ModernTool</b>',
+        '<b id="modern-settings">ModernTool</b>',
         '<ul>',
-        '  <li>',
-        '    <a id="modern-tool-element1" href="#">element1</a>',
-        '  </li>',
+        itemsHTML,
         '</ul>'
     ].join('');
 
+    // Insert before version if exists
     const $versionImg = $menu.find('#version');
     if ($versionImg.length) {
         $(modernToolHTML).insertBefore($versionImg);
@@ -17,46 +48,58 @@ function addModernTool($menu) {
         $menu.append(modernToolHTML);
     }
 
-    // Our own click handler
-    $menu.off('click.modernTool').on('click.modernTool', '#modern-tool-element1', function (e) {
-        e.preventDefault();
+    $menu.data('modernToolsMap', settingsMap);
 
-        const $container = $('.settings-container');
-        console.log($container);
+    const $container = $('.settings-container');
+    if (!$container.length) {
+        console.error('ModernTool: .settings-container not found');
+        return;
+    }
 
-        // Hide all other sections
-        $container.find(".section").hide();
+    // Click on modern tool item
+    $menu.off('click.modernTool')
+        .on('click.modernTool', 'a.modern-tool-item', function (e) {
+            e.preventDefault();
 
-        // Add the modern section
-        $container.append(
-            '<div class="section">' +
-            '  <div class="game_header bold">Promemoria e-mail</div>' +
-            '  <div class="group">' +
-            '    <p>Decidi su quali novità del gioco desideri essere informato via e-mail:</p>' +
+            const $item = $(this);
+            const key = decodeURIComponent($item.data('tool'));
+            const slug = $item.data('slug');
+            const map = $menu.data('modernToolsMap') || {};
+            const html = map[key];
 
-            '    <div class="checkbox_new new_message large" style="margin-bottom:10px; width:100%;">' +
-            '      <div class="cbx_icon"></div><div class="cbx_caption">E-mail per nuovo messaggio</div>' +
-            '    </div>' +
+            if (!html) {
+                console.warn(`ModernTool: no settings HTML for key "${key}"`);
+                return;
+            }
 
-            '    <div class="checkbox_new new_report large" style="margin-bottom:10px; width:100%;">' +
-            '      <div class="cbx_icon"></div><div class="cbx_caption">E-mail per nuovo rapporto</div>' +
-            '    </div>' +
+            // Hide all other sections
+            $container.find('.section').hide();
 
-            '    <div class="checkbox_new building_finished large" style="margin-bottom:10px; width:100%;">' +
-            '      <div class="cbx_icon"></div><div class="cbx_caption">E-mail per completamento di un edificio</div>' +
-            '    </div>' +
+            // Create or show the section
+            const sectionId = `section-${slug}`;
+            let $section = $container.find(`#${sectionId}`);
+            if (!$section.length) {
+                $section = $(`<div class="section" id="${sectionId}"></div>`);
+                $section.append(html);
+                $container.append($section);
+            }
+            $section.show();
 
-            '    <div class="button_new reports_save">' +
-            '      <div class="left"></div>' +
-            '      <div class="right"></div>' +
-            '      <div class="caption js-caption">' +
-            '        <span>Salva</span><div class="effect js-effect"></div>' +
-            '      </div>' +
-            '    </div>' +
-            '  </div>' +
-            '</div>'
-        );
-    });
+            // Remember that ModernTool is active
+            $menu.data('modernActiveSection', sectionId);
+        });
+
+    // When anything *not* from ModernTool is clicked — hide current ModernTool section
+    $menu.off('click.modernToolHide')
+        .on('click.modernToolHide', 'a:not(.modern-tool-item)', function () {
+            const sectionId = $menu.data('modernActiveSection');
+            if (!sectionId) return;
+            const $section = $container.find(`#${sectionId}`);
+            if ($section.length) {
+                $section.hide();
+            }
+            $menu.removeData('modernActiveSection');
+        });
 }
 
 // Hook into player settings window
@@ -64,16 +107,24 @@ $.Observer(GameEvents.window.open).subscribe('modern_settings', (event, payload)
     if (!payload || payload.context !== 'player_settings') return;
     const { wnd } = payload;
     const $body = $(`#gpwnd_${wnd.getID()}`);
+    const $menu = $body.find('.settings-menu');
+
+    const apply = () => {
+        addModernTool($menu);
+        $body.find('#version').css({ 'margin-top': '10px', 'position': 'relative', 'bottom': '0' });
+    };
+
+    if ($menu.length) {
+        apply();
+        return;
+    }
 
     // Wait for lazy-loaded menu
     const obs = new MutationObserver(() => {
-        const $menu = $body.find('.settings-menu');
-        if ($menu.length) {
-            addModernTool($menu);
-
-            // Fix the version position
-            $body.find("#version").css({ "margin-top": "10px", "position": "relative", "bottom": "0" });
-
+        const $menuNow = $body.find('.settings-menu');
+        if ($menuNow.length) {
+            addModernTool($menuNow);
+            $body.find('#version').css({ 'margin-top': '10px', 'position': 'relative', 'bottom': '0' });
             obs.disconnect();
         }
     });
