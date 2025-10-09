@@ -17,10 +17,8 @@ function injectScript(file_path, tag) {
 
 
 // Inject all scripts
-injectScript(chrome.runtime.getURL('src/content/index.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/features/Example.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/features/QuickFarmTowns.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/features/SentinelButton.js'), 'body');
 injectScript(chrome.runtime.getURL('src/content/features/SentinelIndicator.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/index.js'), 'body');
 
-// Inject the logic scripts
-injectScript(chrome.runtime.getURL('src/content/main.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/menu.js'), 'body');

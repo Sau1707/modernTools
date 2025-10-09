@@ -2,169 +2,103 @@
 // Adds a green shield see to polis with sentinels, 100% client side
 
 
-class SentinelIndicator extends window.Tool {
-    constructor() {
-        super();
-        this.active = [];
-        this.observer = null;
-        this.enabled = false;
-        this.containerId = 'map_sentinel';
-        this._updateMap = this.updateMap.bind(this);
-        console.log('[GrepoTweaks-SentinelIndicator] initialized');
-    }
+window.initSentinelIndicator = function () {
+    const uw = window;
+    let active = [];
+    let loop;
 
-    enable() {
-        if (this.enabled) return;
-        this.enabled = true;
-
-        // Wait for map to exist, then setup
-        this.waitFor(() => document.getElementById('map_move_container') && document.getElementById('map_islands'))
-            .then(() => {
-                this.setupContainer();
-                this.attachObserver();
-                this.updateMap();
-                console.log('[GrepoTweaks-SentinelIndicator] enabled');
-            })
-            .catch(() => {
-                console.warn('[GrepoTweaks-SentinelIndicator] map not found; disabling');
-                this.enabled = false;
-            });
-    }
-
-    destroy() {
-        // Detach observer
-        if (this.observer) {
-            this.observer.disconnect();
-            this.observer = null;
-        }
-        // Remove shields
-        this.active.forEach(id => this.removeGreenShield(id));
-        this.active = [];
-
-        // Remove container
-        const c = document.getElementById(this.containerId);
-        if (c && c.parentNode) c.parentNode.removeChild(c);
-
-        this.enabled = false;
-        console.log('[GrepoTweaks-SentinelIndicator] destroyed');
-    }
-
-    settings() {
-        return '' +
-            '<div class="section">' +
-            '  <div class="game_header bold">Sentinel Indicator</div>' +
-            '  <div class="group">' +
-            '    <p>Mostra uno scudo verde sulle polis che ospitano Sentinelle (solo client-side).</p>' +
-            '    <div class="button_new js-si-refresh" style="margin-top:10px;">' +
-            '      <div class="left"></div><div class="right"></div>' +
-            '      <div class="caption js-caption"><span>Aggiorna ora</span><div class="effect js-effect"></div></div>' +
-            '    </div>' +
-            '  </div>' +
-            '</div>';
-    }
-
-    // --- internals ---
-
-    waitFor(testFn, timeoutMs = 8000, intervalMs = 100) {
-        return new Promise((resolve, reject) => {
-            const start = Date.now();
-            const i = setInterval(() => {
-                if (testFn()) { clearInterval(i); resolve(); }
-                else if (Date.now() - start > timeoutMs) { clearInterval(i); reject(new Error('timeout')); }
-            }, intervalMs);
-        });
-    }
-
-    setupContainer() {
-        if (document.getElementById(this.containerId)) return;
+    /* Generate container */
+    function setup() {
         const container = document.getElementById('map_move_container');
         const div = document.createElement('div');
-        div.id = this.containerId;
-        Object.assign(div.style, {
-            position: 'absolute',
-            top: '0px',
-            left: '0px',
-            zIndex: '5',
-            pointerEvents: 'none',
-            opacity: '0.6'
-        });
+        div.id = 'map_sentinel';
+        div.style.position = 'absolute';
+        div.style.top = '0px';
+        div.style.left = '0px';
+        div.style.zIndex = '5';
+        div.style.pointerEvents = 'none';
+        div.style.opacity = '0.6';
         container.appendChild(div);
-    }
 
-    attachObserver() {
         const targetNode = document.getElementById('map_islands');
-        if (!targetNode) return;
+        const observerOptions = {
+            childList: true,
+            attributes: true,
+            subtree: true,
+        };
 
-        const opts = { childList: true, attributes: true, subtree: true };
-        this.observer = new MutationObserver(this._updateMap);
-        this.observer.observe(targetNode, opts);
+        const observer = new MutationObserver(updateMap);
+        observer.observe(targetNode, observerOptions);
     }
 
-    addGreenShield(polisId) {
+    /* Add green shield  */
+    function addGreenShild(polisId) {
         const polis = document.getElementById(`town_${polisId}`);
+        /* Filter polis that are not visible now */
         if (!polis) return false;
-
-        const x = parseInt(polis.style.left, 10);
-        const y = parseInt(polis.style.top, 10);
-
+        const x = parseInt(polis.style.left);
+        const y = parseInt(polis.style.top);
+        /* Create shield */
         const shield = document.createElement('div');
         shield.id = `sentinel_shield_${polisId}`;
-        Object.assign(shield.style, {
-            left: `${x - 29}px`,
-            top: `${y - 25}px`,
-            background: 'url(https://gpit.innogamescdn.com/images/game/autogenerated/map/town_overlay/city_shield_cd2b0df.png) no-repeat 0 0',
-            width: '110px',
-            height: '72px',
-            position: 'absolute',
-            transform: 'translate(10px,10px)',
-            backgroundSize: '95%',
-            filter: 'grayscale(100%) brightness(80%) sepia(300%) hue-rotate(50deg) saturate(500%)'
-        });
-
-        const map = document.getElementById(this.containerId);
-        if (!map) return false;
+        shield.style.left = `${x - 29}px`;
+        shield.style.top = `${y - 25}px`;
+        shield.style.background =
+            'url(https://gpit.innogamescdn.com/images/game/autogenerated/map/town_overlay/city_shield_cd2b0df.png) no-repeat 0 0';
+        shield.style.width = '110px';
+        shield.style.height = '72px';
+        shield.style.position = 'absolute';
+        shield.style.transform = 'translate(10px,10px)';
+        shield.style.backgroundSize = '95%';
+        shield.style.filter =
+            'grayscale(100%) brightness(80%) sepia(300%) hue-rotate(50deg) saturate(500%)';
+        /* Add to map */
+        const map = document.getElementById('map_sentinel');
         map.appendChild(shield);
         return true;
     }
 
-    removeGreenShield(polisId) {
-        const el = document.getElementById(`sentinel_shield_${polisId}`);
-        if (!el) return false;
-        el.remove();
+    function removeGreenShild(polisId) {
+        const element = document.getElementById(`sentinel_shield_${polisId}`);
+        if (!element) return false;
+        element.remove();
         return true;
     }
 
-    updateMap() {
-        if (!this.enabled) return;
-
-        try {
-            const towns = Object.keys(window.ITowns.towns || {});
-            const current = [];
-
-            towns.forEach((tid) => {
-                const frag = window.ITowns.all_supporting_units?.fragments?.[tid];
-                const models = frag?.models || [];
-                models.forEach(m => {
-                    const id = m?.attributes?.current_town_id;
-                    if (id != null && current.indexOf(id) === -1) current.push(id);
-                });
+    /* Main function */
+    function updateMap() {
+        const towns = Object.keys(uw.ITowns.towns);
+        let current = [];
+        towns.forEach((e) => {
+            const models = uw.ITowns.all_supporting_units.fragments[e].models;
+            models.forEach((m) => {
+                let attributes = m.attributes;
+                current.indexOf(attributes.current_town_id) === -1
+                    ? current.push(attributes.current_town_id)
+                    : null;
             });
+        });
 
-            // diff
-            const toRemove = this.active.filter(x => !current.includes(x));
-            const toAdd = current.filter(x => !this.active.includes(x));
-
-            toRemove.forEach(id => this.removeGreenShield(id));
-            toAdd.forEach(id => { if (!this.addGreenShield(id)) current.splice(current.indexOf(id), 1); });
-
-            this.active = current;
-        } catch (e) {
-            // Fail softly; try again on the next mutation
-            // console.debug('updateMap error', e);
-        }
+        /* Check if list has updated */
+        let removeShield = active.filter((x) => !current.includes(x));
+        let addShield = current.filter((x) => !active.includes(x));
+        removeShield.forEach((e) => {
+            removeGreenShild(e);
+        });
+        addShield.forEach((e) => {
+            if (!addGreenShild(e)) current.splice(current.indexOf(e), 1);
+        });
+        active = current;
     }
-}
 
-// Expose the tool instance (like the example)
-window.modernSentinelIndicator = new SentinelIndicator();
+    window.addEventListener('load', (event) => {
+        setTimeout(() => {
+            setup();
+            updateMap();
+        }, 500);
+    });
 
+    console.log('[GrepoTweaks-SentinelIndicator] Loaded');
+};
+
+window.initSentinelIndicator();
