@@ -1,0 +1,46 @@
+name: Build and Attach Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Find zip file
+        id: find_zip
+        run: |
+          ZIP_FILE=$(ls release/*.zip | head -n 1)
+          ZIP_NAME=$(basename "$ZIP_FILE")
+          echo "zip_path=$ZIP_FILE" >> $GITHUB_OUTPUT
+          echo "zip_name=$ZIP_NAME" >> $GITHUB_OUTPUT
+      
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ steps.find_zip.outputs.zip_path }}
+          asset_name: ${{ steps.find_zip.outputs.zip_name }}
+          asset_content_type: application/zip
