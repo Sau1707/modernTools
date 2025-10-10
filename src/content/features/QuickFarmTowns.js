@@ -17,6 +17,21 @@ window.initQuickFarmTowns = function () {
         background-position: right -46px;
     }
 
+    div.island_info_wrapper .island_info_left .game_list {
+        height: 365px !important;
+    }
+
+    div.island_info_wrapper .island_info_right .game_list {
+        height: 365px !important;
+    }
+
+    #farm_town_overview_btn {
+        top: 51px !important;
+    }
+
+    #island_towns_controls {
+    }
+    }
     `
     var style = $('<style>').html(css);
     $('head').append(style);
