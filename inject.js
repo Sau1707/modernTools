@@ -21,5 +21,7 @@ injectScript(chrome.runtime.getURL('src/content/features/QuickFarmTowns.js'), 'b
 injectScript(chrome.runtime.getURL('src/content/features/SentinelButton.js'), 'body');
 injectScript(chrome.runtime.getURL('src/content/features/SentinelIndicator.js'), 'body');
 injectScript(chrome.runtime.getURL('src/content/features/WindowBordLess.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/features/MinDailyReward.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/features/TownBBCode.js'), 'body');
 injectScript(chrome.runtime.getURL('src/content/index.js'), 'body');
 

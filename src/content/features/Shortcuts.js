@@ -1,0 +1,1 @@
+// Credi sia possibile aggiungere una shortcut da tastiera a questo bottone?
