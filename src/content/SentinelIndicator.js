@@ -1,3 +1,12 @@
+// ==UserScript==
+// @name         Sentinel Indicator
+// @author       Sau1707
+// @description  Add a green shield to polis with sentinels
+// @version      1.0.0
+// @match        http://*.grepolis.com/game/*
+// @match        https://*.grepolis.com/game/*
+// @icon         
+// ==/UserScript==
 // https://it.forum.grepolis.com/index.php?threads/script-greposentinelbutton-greposentinelindicator.24135/
 // Adds a green shield see to polis with sentinels, 100% client side
 

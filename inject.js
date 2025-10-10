@@ -17,11 +17,10 @@ function injectScript(file_path, tag) {
 
 
 // Inject all scripts
-injectScript(chrome.runtime.getURL('src/content/features/QuickFarmTowns.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/features/SentinelButton.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/features/SentinelIndicator.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/features/WindowBordLess.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/features/MinDailyReward.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/features/TownBBCode.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/index.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/QuickFarmTowns.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/SentinelButton.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/SentinelIndicator.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/WindowBordLess.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/MinDailyReward.js'), 'body');
+injectScript(chrome.runtime.getURL('src/content/TownBBCode.js'), 'body');
 

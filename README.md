@@ -2,6 +2,6 @@
 
 > Work in progress.
 
-# FlashTool
+A collection of tools for Grepolis packed as a Chrome extension.
 
-https://it.forum.grepolis.com/index.php?threads/script-flask-tools.21932/
+## Features
