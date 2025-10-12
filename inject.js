@@ -23,4 +23,4 @@ injectScript(chrome.runtime.getURL('src/content/SentinelIndicator.js'), 'body');
 injectScript(chrome.runtime.getURL('src/content/WindowBordLess.js'), 'body');
 injectScript(chrome.runtime.getURL('src/content/MinDailyReward.js'), 'body');
 injectScript(chrome.runtime.getURL('src/content/TownBBCode.js'), 'body');
-
+injectScript(chrome.runtime.getURL('src/content/Trade.js'), 'body');
