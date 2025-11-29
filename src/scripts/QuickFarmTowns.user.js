@@ -1,9 +1,20 @@
-// QuickFarmTowns:
-// https://it.forum.grepolis.com/index.php?threads/script-quickfarmtown.24840/
-// Adds quick action buttons to farm towns on the island view
+// ==UserScript==
+// @name         QuickFarmTown
+// @author       Sau1707
+// @description  Adds quick action buttons to farm towns on the island view
+// @version      1.0.0
+// @match        http://*.grepolis.com/game/*
+// @match        https://*.grepolis.com/game/*
+// @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
+// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickFarmTowns.user.js
+// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickFarmTowns.user.js
+// @supportURL   https://it.forum.grepolis.com/index.php?threads/script-quickfarmtown.24840/
+// ==/UserScript==
 
-window.initQuickFarmTowns = function () {
-    const uw = window;
+
+(function () {
+    'use strict';
+    const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
     const $ = uw.$;
 
     const css = `
@@ -169,7 +180,4 @@ window.initQuickFarmTowns = function () {
             $el.each(addButtons)
         }, 50)
     });
-}
-
-
-window.initQuickFarmTowns();
+})();

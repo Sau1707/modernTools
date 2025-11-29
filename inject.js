@@ -10,10 +10,10 @@ function injectScript(file_path, tag) {
 
 
 // Inject all scripts
-injectScript(chrome.runtime.getURL('src/scripts/QuickFarmTowns.js'), 'body');
-injectScript(chrome.runtime.getURL('src/scripts/SentinelButton.js'), 'body');
-injectScript(chrome.runtime.getURL('src/scripts/SentinelIndicator.js'), 'body');
 injectScript(chrome.runtime.getURL('src/scripts/MinDailyReward.user.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/QuickFarmTowns.user.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/SentinelButton.user.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/SentinelIndicator.user.js'), 'body');
 // injectScript(chrome.runtime.getURL('src/scripts/TownBBCode.js'), 'body');
 //injectScript(chrome.runtime.getURL('src/scripts/Trade.js'), 'body');
 

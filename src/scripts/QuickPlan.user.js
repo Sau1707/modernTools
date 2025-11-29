@@ -5,15 +5,17 @@
 // @version      1.0.3
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
-// @icon         
+// @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
 // ==/UserScript==
 
 
 (function () {
-    let dateObj;
+    'use strict';
     const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+
+    let dateObj;
 
     uw.$.Observer(uw.GameEvents.window.open).subscribe("modern_plan", (event, window, ...others) => {
         if (window.context !== "town") return;

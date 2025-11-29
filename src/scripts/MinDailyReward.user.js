@@ -5,17 +5,14 @@
 // @version      1.0.0
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
-// @icon
+// @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/MinDailyReward.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/MinDailyReward.user.js
 // ==/UserScript==
 
 
-console.log('MinDailyReward script loaded');
-
 (function () {
     'use strict';
-    console.log('MinDailyReward script loaded');
 
     function minimizeDailyReward() {
         const daily = document.querySelector('.daily_login');

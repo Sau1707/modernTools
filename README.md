@@ -50,12 +50,13 @@ We want to make the script comatile with `tampermonkey` / `greasemonkey` / `viol
 // @name         <Script Name>
 // @author       <Author Name>
 // @description  <Description>
-// @version      1.0.3
+// @version      1.X.X
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
 // @icon
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/<name>.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/<name>.user.js
+// @supportURL   <Link of the Approval Page>
 // ==/UserScript==
 
 (function () {

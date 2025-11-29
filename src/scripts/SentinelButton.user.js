@@ -1,8 +1,21 @@
-// https://it.forum.grepolis.com/index.php?threads/script-greposentinelbutton-greposentinelindicator.24135/
-// Adds a button to quickly open the Sentinel window from the top bar
+// ==UserScript==
+// @name         SentinelButton
+// @author       Sau1707
+// @description  Add a button in the Context Menu for easly send a sentinel
+// @version      2.0.0
+// @match        http://*.grepolis.com/game/*
+// @match        https://*.grepolis.com/game/*
+// @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
+// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
+// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
+// @supportURL   https://it.forum.grepolis.com/index.php?threads/script-greposentinelbutton-greposentinelindicator.24135
+// ==/UserScript==
 
-window.initSentinelButton = function () {
-    const uw = window;
+
+(function () {
+    'use strict';
+    const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+
 
     /* return true if polis has own troops inside else otherwise or if  it's player polis */
     function hasSentinel(id) {
@@ -94,8 +107,5 @@ window.initSentinelButton = function () {
             menu.remove();
         });
     });
+})();
 
-    console.log('[GrepoTweaks-SentinelButton] Loaded');
-};
-
-window.initSentinelButton();

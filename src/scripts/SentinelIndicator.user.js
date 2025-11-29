@@ -1,18 +1,22 @@
 // ==UserScript==
-// @name         Sentinel Indicator
+// @name         SentinelIndicator
 // @author       Sau1707
-// @description  Add a green shield to polis with sentinels
-// @version      1.0.0
+// @description  Adds a green shield see to polis with sentinels, 100% client side
+// @version      2.0.0
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
-// @icon         
+// @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
+// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
+// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
+// @supportURL   https://it.forum.grepolis.com/index.php?threads/script-greposentinelbutton-greposentinelindicator.24135/
 // ==/UserScript==
-// https://it.forum.grepolis.com/index.php?threads/script-greposentinelbutton-greposentinelindicator.24135/
-// Adds a green shield see to polis with sentinels, 100% client side
 
 
-window.initSentinelIndicator = function () {
-    const uw = window;
+
+(function () {
+    'use strict';
+    const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+
     let active = [];
     let loop;
 
@@ -107,7 +111,4 @@ window.initSentinelIndicator = function () {
         }, 500);
     });
 
-    console.log('[GrepoTweaks-SentinelIndicator] Loaded');
-};
-
-window.initSentinelIndicator();
+})();
