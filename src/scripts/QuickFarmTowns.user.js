@@ -9,7 +9,9 @@
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickFarmTowns.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickFarmTowns.user.js
 // @supportURL   https://it.forum.grepolis.com/index.php?threads/script-quickfarmtown.24840/
+// @grant        unsafeWindow
 // ==/UserScript==
+
 
 
 (function () {

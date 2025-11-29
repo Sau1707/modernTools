@@ -1,17 +1,21 @@
 // ==UserScript==
-// @name         Grepolis – Commercio percentuale + uguale + profili unità (resilient)
-// @namespace    https://your-namespace.example
-// @description  Aggiunge 2 pulsanti (“commercio percentuale”, “commercio uguale”) e una griglia di profili unità che ripartisce le risorse in base ai pesi (wood/stone/iron). Tutto si re-installa su refresh/cambio città.
-// @version      1.4.0
+// @name         PercentageTrade
+// @author       Sau1707 - Taken from FLASK-Tools
+// @description  Modern Trade
+// @version      1.0.0
+// @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
-// @grant        none
+// @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
+// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/PercentageTrade.user.js
+// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/PercentageTrade.user.js
+// @grant        unsafeWindow
 // ==/UserScript==
+
 
 (function () {
     'use strict';
-    const uw = window;
+    const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
     const $ = uw.$ || uw.jQuery;
-    if (!$ || !uw.GameEvents || !$.Observer) return;
 
     /* ---------- Config: unit profiles (weights) ---------- */
     // amounts computed as scale * weights, where scale = min( cap/(w+s+i), wood/w, stone/s, iron/i )

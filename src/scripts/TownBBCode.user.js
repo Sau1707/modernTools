@@ -1,13 +1,16 @@
 // ==UserScript==
-// @name         Grepolis — BBcode città (Town BBCode button)
-// @namespace    https://your.namespace.here
+// @name         TownBBCode
+// @author       Sau1707 - Taken from FLASK-Tools
+// @description  Adds town icons to the town list and strategic map based on unit composition.
 // @version      1.0.0
-// @description  Aggiunge un pulsante per copiare il BBCode della città nella barra del titolo della città.
+// @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
-// @icon         https://flasktools.altervista.org/images/166d6p2.png
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
+// @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
+// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/TownBBCode.user.js
+// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/TownBBCode.user.js
 // @grant        unsafeWindow
 // ==/UserScript==
+
 
 (function () {
     'use strict';

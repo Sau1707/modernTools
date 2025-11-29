@@ -8,7 +8,9 @@
 // @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
+// @grant        unsafeWindow
 // ==/UserScript==
+
 
 
 (function () {

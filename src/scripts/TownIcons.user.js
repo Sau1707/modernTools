@@ -1,15 +1,16 @@
 // ==UserScript==
-// @name         Grepolis — Town Icons
-// @namespace    https://github.com/Sau1707/modernTools
-// @version      1.0.0
+// @name         TownIcons
+// @author       Sau1707
 // @description  Adds town icons to the town list and strategic map based on unit composition.
+// @version      1.0.0
+// @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
-// @icon         https://flasktools.altervista.org/images/166d6p2.png
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
+// @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
+// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
+// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
 // @grant        unsafeWindow
-// @grant        GM_setValue
-// @grant        GM_getValue
 // ==/UserScript==
+
 
 (function () {
     'use strict';
