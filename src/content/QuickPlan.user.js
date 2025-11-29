@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Quick Plan
+// @name         Modern Plan
 // @author       Sau1707
 // @description  Simplify planning attacks with Captain Advisor
 // @version      1.0.0
@@ -11,8 +11,9 @@
 
 (function () {
     let dateObj;
+    const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
 
-    $.Observer(GameEvents.window.open).subscribe("quick_rurals", (event, window, ...others) => {
+    uw.$.Observer(uw.GameEvents.window.open).subscribe("modern_plan", (event, window, ...others) => {
         if (window.context !== "town") return;
 
         const { wnd } = window;
