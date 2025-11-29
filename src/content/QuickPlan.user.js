@@ -2,7 +2,7 @@
 // @name         Modern Plan
 // @author       Sau1707
 // @description  Simplify planning attacks with Captain Advisor
-// @version      1.0.0
+// @version      1.0.1
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
 // @icon         
