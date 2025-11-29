@@ -2,7 +2,7 @@
 // @name         Modern Plan
 // @author       Sau1707
 // @description  Simplify planning attacks with Captain Advisor
-// @version      1.0.1
+// @version      1.0.2
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
 // @icon         
@@ -20,7 +20,7 @@
 
         const { wnd } = window;
         const id = wnd.getID();
-        const $view = $(`#gpwnd_${id}`);
+        const $view = uw.$(`#gpwnd_${id}`);
 
         const observer = new MutationObserver(() => {
             const $btn = $view.find('#btn_plan_attack_town');
@@ -37,7 +37,7 @@
             // Attach your own handler on the Grepolis button event
             $btn.on('btn:click.quick_rurals', function () {
 
-                const $el = $('.attack_support_window[class*="attack_support_tab_target_"]');
+                const $el = uw.$('.attack_support_window[class*="attack_support_tab_target_"]');
 
                 if ($el.length) {
                     const classes = $el.attr('class').split(/\s+/);
@@ -49,10 +49,10 @@
                             // Gather units to send
                             const units = {};
                             $view.find(".unit_wrapper .unit_container").each(function () {
-                                const unitEl = $(this).find("a.unit");
+                                const unitEl = uw.$(this).find("a.unit");
                                 const unitName = unitEl.data("unit_id");
 
-                                const input = $(this).find("input");
+                                const input = uw.$(this).find("input");
                                 if (input.length === 0) return;
 
                                 const rawVal = input.val();
@@ -91,12 +91,12 @@
     // Your custom function
     function myAttackFunction(target_id, units, attack_type, include_hero) {
 
-        if (GameDataPremium.isAdvisorActivated("captain")) {
-            const wnd = AttackPlannerWindowFactory.openAttackPlannerForTarget(target_id);
+        if (uw.GameDataPremium.isAdvisorActivated("captain")) {
+            const wnd = uw.AttackPlannerWindowFactory.openAttackPlannerForTarget(target_id);
 
             const id = wnd.getID();
 
-            const $view = $(`#gpwnd_${id}`);
+            const $view = uw.$(`#gpwnd_${id}`);
 
             const observer = new MutationObserver(() => {
                 const $input = $view.find('.txt_search_in_towns input[type="text"]');
@@ -105,11 +105,11 @@
                     observer.disconnect();
 
                     // Get the textbox widget registered under this window
-                    let txt_search_in_towns = CM.get(wnd.getContext(), "txt_search_in_towns");
-                    txt_search_in_towns.setValue(ITowns.getTown(Game.townId).name);
+                    let txt_search_in_towns = uw.CM.get(wnd.getContext(), "txt_search_in_towns");
+                    txt_search_in_towns.setValue(ITowns.getTown(uw.Game.townId).name);
 
                     // Hide all the non available units by default
-                    const show_all_units = CM.get(wnd.getContext(), "show_all_units");
+                    const show_all_units = uw.CM.get(wnd.getContext(), "show_all_units");
                     show_all_units.click();
 
                     // Expand the units
@@ -123,30 +123,29 @@
                         const value = units[unit];
                         const textboxId = "textbox_unit_" + unit;
 
-                        CM.get(ctx, textboxId).setValue(value);
+                        uw.CM.get(ctx, textboxId).setValue(value);
                     }
 
                     // If there is only one plan, select it
-                    const options = CM.get(ctx, "dd_select_plan").getOptions();
+                    const options = uw.CM.get(ctx, "dd_select_plan").getOptions();
                     const valid = options.filter(o => Number(o.value) > 0);
                     if (valid.length === 1) {
-                        CM.get(ctx, "dd_select_plan").setValue(valid[0].value);
+                        uw.CM.get(ctx, "dd_select_plan").setValue(valid[0].value);
                     }
 
                     // Datepicker - set to today
                     if (dateObj) {
-                        CM.get(ctx, "dp_attack_day").datepicker({ "timestamp": Math.floor(dateObj.getTime() / 1000) })
+                        uw.CM.get(ctx, "dp_attack_day").datepicker({ "timestamp": Math.floor(dateObj.getTime() / 1000) })
                     }
 
                     // Attack type
-                    CM.get(ctx, "rb_attack_type").setValue(attack_type)
-
+                    uw.CM.get(ctx, "rb_attack_type").setValue(attack_type)
                     // Enable the saving of the time by default
-                    CM.get(wnd.getContext(), "check_use_same_time").check(true);
+                    uw.CM.get(wnd.getContext(), "check_use_same_time").check(true);
 
                     // Include hero
                     if (include_hero) {
-                        CM.get(wnd.getContext(), "cbx_include_hero").check(true);
+                        uw.CM.get(wnd.getContext(), "cbx_include_hero").check(true);
                     }
 
                     // Add options to save the date when clicking the button
@@ -166,6 +165,6 @@
 
             observer.observe($view[0], { childList: true, subtree: true });
 
-        } else hOpenWindow.openActivateAdvisorWindow("captain")
+        } else uw.hOpenWindow.openActivateAdvisorWindow("captain")
     }
 })();
