@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Modern Plan
+// @name         ModernPlan
 // @author       Sau1707
 // @description  Simplify planning attacks with Captain Advisor
-// @version      1.0.2
+// @version      1.0.3
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
 // @icon         
@@ -106,14 +106,14 @@
 
                     // Get the textbox widget registered under this window
                     let txt_search_in_towns = uw.CM.get(wnd.getContext(), "txt_search_in_towns");
-                    txt_search_in_towns.setValue(ITowns.getTown(uw.Game.townId).name);
+                    txt_search_in_towns.setValue(uw.ITowns.getTown(uw.Game.townId).name);
 
                     // Hide all the non available units by default
                     const show_all_units = uw.CM.get(wnd.getContext(), "show_all_units");
                     show_all_units.click();
 
                     // Expand the units
-                    $(".click_detection").click();
+                    uw.$(".click_detection").click();
 
                     // Insert the unites in the plan
                     let { main } = wnd.getContext();
@@ -151,7 +151,7 @@
                     // Add options to save the date when clicking the button
                     const $btn_add_plan = $view.find('.btn_add_plan');
                     $btn_add_plan.on('click', function () {
-                        const dp = CM.get(ctx, "dp_attack_day");
+                        const dp = uw.CM.get(ctx, "dp_attack_day");
                         const t = dp.getTime();
                         const day = dp.getDay();
                         const month = dp.getMonth();
