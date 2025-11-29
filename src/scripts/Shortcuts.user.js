@@ -61,16 +61,15 @@
     const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
 
     // Prevent zoom and use scroll to switch views
-    uw.addEventListener('wheel', function (e) {
-        if (e.ctrlKey) return; // don't interfere with browser zoom
-        e.preventDefault();
-        if (e.deltaY < 0) {
-            uw.Layout.wnd.switchViewPrevious && uw.Layout.wnd.switchViewPrevious();
-        } else {
-            uw.Layout.wnd.switchViewNext && uw.Layout.wnd.switchViewNext();
-        }
-    }, { passive: false });
-
+    // uw.addEventListener('wheel', function (e) {
+    //     if (e.ctrlKey) return; // don't interfere with browser zoom
+    //     e.preventDefault();
+    //     if (e.deltaY < 0) {
+    //         uw.Layout.wnd.switchViewPrevious && uw.Layout.wnd.switchViewPrevious();
+    //     } else {
+    //         uw.Layout.wnd.switchViewNext && uw.Layout.wnd.switchViewNext();
+    //     }
+    // }, { passive: false });
 
     // Add the keyboard shortcuts for switching views
     uw.document.onkeydown = function (e) {

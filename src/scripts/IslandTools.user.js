@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         QuickFarmTown
+// @name         IslandTools
 // @author       Sau1707
-// @description  Adds quick action buttons to farm towns on the island view
+// @description  Adds quick action buttons to farm towns on the island view as well other improvements
 // @version      1.0.0
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
@@ -180,6 +180,17 @@
             if (!$el.length) return;
             clearInterval(interval)
             $el.each(addButtons)
+
+            // Add the other utilities
+            // $("#island_towns_controls").appendTo(".game_header.bold:first");
+            $("#island_towns_controls").css({
+                "background": "none",
+                "border": "none",
+                "width": "207px",
+                "position": "absolute",
+                "right": "-3px",
+                "top": "-2px",
+            });
         }, 50)
     });
 })();

@@ -18,7 +18,7 @@ A collection of tools for Grepolis packed as a Chrome extension.
 -   [ ] Activity boxes: Improved display of trade and troop activity boxes (position memory)
 -   [ ] Favor popup: Changes the favor popup
 -   [ ] Taskbar: Increases the taskbar and minimizes the daily reward window on startup
--   [ ] Daily reward: Minimizes the daily reward window on startup
+-   [x] Daily reward: Minimizes the daily reward window on startup
 -   [ ] Defense form: Extends the bbcode bar by an automatic defense form
 -   [ ] Unit Comparison: Adds unit comparison tables
 -   [ ] Town icons: Each city receives an icon for the town type (automatic detection)
@@ -36,9 +36,7 @@ A collection of tools for Grepolis packed as a Chrome extension.
 -   [ ] Scrollbar Style: Improved a new style for the scrollbar
 -   [ ] Trade resources for festivals: Improved a new button to trade the resources
 -   [ ] Calculator: Share the participation calculation
--   [ ] Keyboard shortcuts: It changes your life
--   [ ] Moding: Improved the picture of the goddes with your favorite characters
--   [ ] Send bug reports automatically: If you activate this option, you can help identify bugs
+-   [x] Keyboard shortcuts: It changes your life
 -   [ ] Thracian Conquest: Downsizing of the map of the Thracian conquest
 
 ## Add a new script
