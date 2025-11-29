@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Town Icons Test</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body { background-color: #333; color: white; font-family: Arial, sans-serif; }
+        #town_groups_list { border: 1px solid #666; padding: 10px; width: 200px; }
+        .town_group_town { padding: 5px; margin: 2px; background: #444; cursor: pointer; }
+        .town_name_area { border: 1px solid #666; padding: 10px; margin-top: 20px; width: 300px; position: relative; height: 50px; }
+    </style>
+</head>
+<body>
+    <h1>Town Icons Test</h1>
+    
+    <h3>Town List</h3>
+    <div id="town_groups_list">
+        <div class="town_group_town" name="1">Town 1 (Land Off)</div>
+        <div class="town_group_town" name="2">Town 2 (Sea Def)</div>
+        <div class="town_group_town" name="3">Town 3 (Empty)</div>
+    </div>
+
+    <h3>Town Name Area</h3>
+    <div class="town_name_area">
+        Town Name Here
+    </div>
+
+    <script>
+        // Mock Grepolis Environment
+        window.Game = {
+            world_id: 'test_world',
+            player_id: 123,
+            market_id: 'en',
+            townId: 1,
+            hasArtemis: true
+        };
+
+        window.GameData = {
+            gods: { aphrodite: true, ares: true },
+            units: {
+                sword: { is_naval: false, defense: 14, attack: 5, speed: 8, population: 1, flying: false, def_hack: 14, def_pierce: 8, def_distance: 30 },
+                slinger: { is_naval: false, defense: 2, attack: 23, speed: 14, population: 1, flying: false, def_hack: 2, def_pierce: 4, def_distance: 23 },
+                hoplite: { is_naval: false, defense: 18, attack: 16, speed: 6, population: 1, flying: false, def_hack: 18, def_pierce: 12, def_distance: 7 },
+                bireme: { is_naval: true, defense: 160, attack: 24, speed: 15, population: 8, flying: false },
+                attack_ship: { is_naval: true, defense: 60, attack: 200, speed: 13, population: 10, flying: false }
+            },
+            buildings: {
+                farm: { farm_factor: 100, farm_pow: 1 },
+                thermal: { pop: 0, pop_factor: 0 }
+            }
+        };
+
+        window.ITowns = {
+            getTowns: function() {
+                return {
+                    1: {
+                        id: 1,
+                        units: () => ({ slinger: 500, hoplite: 100 }), // Land Off
+                        buildings: () => ({
+                            getBuildingLevel: (b) => b === 'farm' ? 40 : 20,
+                            getLevels: () => ({ farm: 40 })
+                        }),
+                        getAvailablePopulation: () => 100,
+                        getResearches: () => ({ attributes: {} })
+                    },
+                    2: {
+                        id: 2,
+                        units: () => ({ bireme: 200 }), // Sea Def
+                        buildings: () => ({
+                            getBuildingLevel: (b) => b === 'farm' ? 40 : 20,
+                            getLevels: () => ({ farm: 40 })
+                        }),
+                        getAvailablePopulation: () => 100,
+                        getResearches: () => ({ attributes: {} })
+                    },
+                    3: {
+                        id: 3,
+                        units: () => ({ sword: 10 }), // Empty
+                        buildings: () => ({
+                            getBuildingLevel: (b) => b === 'farm' ? 40 : 20,
+                            getLevels: () => ({ farm: 40 })
+                        }),
+                        getAvailablePopulation: () => 2800, // High available pop
+                        getResearches: () => ({ attributes: {} })
+                    }
+                };
+            }
+        };
+
+        window.GameEvents = {
+            town: { town_switch: 'town_switch_event' }
+        };
+        
+        // Mock Observer
+        $.Observer = function() {
+            return {
+                subscribe: function(event, callback) {
+                    console.log('Subscribed to', event);
+                }
+            };
+        };
+
+    </script>
+    
+    <!-- Load the script to test -->
+    <script src="../src/content/TownIcons.js"></script>
+</body>
+</html>

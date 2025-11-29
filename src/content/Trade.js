@@ -38,12 +38,14 @@
                 width:27px; height:27px; top:-3px; float:left; position:relative;
                 background:url("https://flasktools.altervista.org/images/cjq6d72qk521ig1zz.png") no-repeat;
             }
+            .pct_trade_btn .img_trade { background-position: 0 0; }
+            .eq_trade_btn  .img_trade { background-position: -27px 0; }
+
             #trade_tab .content { min-height: 420px; }
-            #trade .game_border { width: 540px; }
 
             /* Unit profile grid */
             #app_trade { 
-                width:56%; margin:20px auto; display:grid; grid-template-columns: repeat(5, 20%); gap:6px;
+                width:96%; margin:20px auto; display:grid; grid-template-columns: repeat(10, 10%);
             }
             #app_trade .option_s { cursor:pointer; }
             #app_trade .selected { box-shadow: 0 0 10px 5px rgb(34 255 0) !important; }
@@ -52,7 +54,15 @@
     })();
 
     /* ---------- Small helpers ---------- */
-    $.fn.toggleClick = function (f1, f2) { let i = 0; return this.on('click', e => { e.preventDefault(); (i++ % 2 ? f2 : f1).call(this, e); }); };
+    function bindToggle($el, onFn, offFn) {
+        let active = false;
+        $el.off('click.pcteq').on('click.pcteq', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            active = !active;
+            (active ? onFn : offFn)();
+        });
+    }
 
     let res = {}, rest_count = 0;
     let selectedProfile = null; // key of PROFILES or null
@@ -225,15 +235,14 @@
             $btnEq.css({ left: '406px', top: '127px' });
         }
 
-        $btnPct.find('a.button').toggleClick(
+        bindToggle($btnPct,
             () => computeAndFill($root, isWonder),
             () => setAmount(true, $root, isWonder ? 'ww_' : '')
         );
-        $btnEq.find('a.button').toggleClick(
+        bindToggle($btnEq,
             () => computeAndFillEqual($root, isWonder),
             () => setAmount(true, $root, isWonder ? 'ww_' : '')
         );
-
         $container.prepend($btnEq).prepend($btnPct);
     }
 
