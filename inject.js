@@ -1,10 +1,3 @@
-/**
- * injectScript - Inject internal script to available access to the `window`
- *
- * @param  {type} file_path Local path of the internal script.
- * @param  {type} tag The tag as string, where the script will be append (default: 'body').
- * @see    {@link http://stackoverflow.com/questions/20499994/access-window-variable-from-content-script}
- */
 
 
 function injectScript(file_path, tag) {
@@ -17,11 +10,13 @@ function injectScript(file_path, tag) {
 
 
 // Inject all scripts
-injectScript(chrome.runtime.getURL('src/content/QuickFarmTowns.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/SentinelButton.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/SentinelIndicator.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/MinDailyReward.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/TownBBCode.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/Trade.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/Patches.js'), 'body');
-injectScript(chrome.runtime.getURL('src/content/QuickPlan.user.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/QuickFarmTowns.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/SentinelButton.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/SentinelIndicator.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/MinDailyReward.user.js'), 'body');
+// injectScript(chrome.runtime.getURL('src/scripts/TownBBCode.js'), 'body');
+//injectScript(chrome.runtime.getURL('src/scripts/Trade.js'), 'body');
+
+injectScript(chrome.runtime.getURL('src/scripts/Patches.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/QuickPlan.user.js'), 'body');
+// injectScript(chrome.runtime.getURL('src/content/FlaskTool.user.js'), 'body');

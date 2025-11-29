@@ -24,7 +24,7 @@ export default defineManifest({
     ],
     web_accessible_resources: [
         {
-            resources: ["src/content/*", "src/content/features/*"],
+            resources: ["src/scripts/*"],
             matches: ["*://*.grepolis.com/*"],
             use_dynamic_url: true,
         }

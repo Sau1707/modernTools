@@ -41,6 +41,33 @@ A collection of tools for Grepolis packed as a Chrome extension.
 -   [ ] Send bug reports automatically: If you activate this option, you can help identify bugs
 -   [ ] Thracian Conquest: Downsizing of the map of the Thracian conquest
 
+## Add a new script
+
+We want to make the script comatile with `tampermonkey` / `greasemonkey` / `violentmonkey`. Therefore add a script in `src/content/` with the name `<name>.user.js` suffix and use the following template:
+
+```js
+// ==UserScript==
+// @name         <Script Name>
+// @author       <Author Name>
+// @description  <Description>
+// @version      1.0.3
+// @match        http://*.grepolis.com/game/*
+// @match        https://*.grepolis.com/game/*
+// @icon
+// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/<name>.user.js
+// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/<name>.user.js
+// ==/UserScript==
+
+(function () {
+	'use strict';
+	const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+
+	// Your code here...
+})();
+```
+
+When are bundles into the extension, the comments are simply ignored.
+
 ##
 
 Get current town
