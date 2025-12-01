@@ -3,8 +3,7 @@
 // @author       Sau1707 - Taken from Flasktool
 // @description  Adds town icons to the town list and strategic map based on unit composition.
 // @version      1.0.0
-// @match        http://*.grepolis.com/game/*
-// @match        https://*.grepolis.com/game/*
+// @include      http://*.grepolis.*/game/*
 // @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/TownIcons.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/TownIcons.user.js

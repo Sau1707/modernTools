@@ -3,8 +3,8 @@
 // @author       Sau1707
 // @description  Adds a green shield see to polis with sentinels, 100% client side
 // @version      2.0.0
-// @match        http://*.grepolis.com/game/*
-// @match        https://*.grepolis.com/game/*
+// @include      https://*.grepolis.com/game/*
+// @exclude      https://*.forum.grepolis.com/*
 // @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js

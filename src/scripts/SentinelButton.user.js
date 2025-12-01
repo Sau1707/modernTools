@@ -3,8 +3,7 @@
 // @author       Sau1707
 // @description  Add a button in the Context Menu for easly send a sentinel
 // @version      2.0.0
-// @match        http://*.grepolis.com/game/*
-// @match        https://*.grepolis.com/game/*
+// @include      http://*.grepolis.*/game/*
 // @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js

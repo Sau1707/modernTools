@@ -3,7 +3,8 @@
 // @namespace    https://flasktools.altervista.org
 // @version      1.0
 // @description  Allows changing the city/map/overview view with the mouse wheel.
-// @match        https://*.grepolis.com/game/*
+// @include      https://*.grepolis.com/game/*
+// @exclude      https://*.forum.grepolis.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -12,15 +13,15 @@
     'use strict';
     const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
 
-    uw.addEventListener('wheel', function (e) {
-        if (e.ctrlKey) return; // don't interfere with browser zoom
-        e.preventDefault();
-        if (e.deltaY < 0) {
-            uw.Layout.wnd.switchViewPrevious && uw.Layout.wnd.switchViewPrevious();
-        } else {
-            uw.Layout.wnd.switchViewNext && uw.Layout.wnd.switchViewNext();
-        }
-    }, { passive: false });
+    // uw.addEventListener('wheel', function (e) {
+    //     if (e.ctrlKey) return; // don't interfere with browser zoom
+    //     e.preventDefault();
+    //     if (e.deltaY < 0) {
+    //         uw.Layout.wnd.switchViewPrevious && uw.Layout.wnd.switchViewPrevious();
+    //     } else {
+    //         uw.Layout.wnd.switchViewNext && uw.Layout.wnd.switchViewNext();
+    //     }
+    // }, { passive: false });
 
     // Add the keyboard shortcuts for switching views
     uw.document.onkeydown = function (e) {

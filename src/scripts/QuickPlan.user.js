@@ -3,8 +3,7 @@
 // @author       Sau1707
 // @description  Simplify planning attacks with Captain Advisor
 // @version      1.0.3
-// @match        http://*.grepolis.com/game/*
-// @match        https://*.grepolis.com/game/*
+// @include      http://*.grepolis.*/game/*
 // @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
 // @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
 // @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js

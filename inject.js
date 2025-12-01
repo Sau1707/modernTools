@@ -22,5 +22,4 @@ injectScript(chrome.runtime.getURL('src/scripts/UIExperience.user.js'), 'body');
 injectScript(chrome.runtime.getURL('src/scripts/BetterActivity.user.js'), 'body');
 injectScript(chrome.runtime.getURL('src/scripts/TownIcons.user.js'), 'body');
 injectScript(chrome.runtime.getURL('src/scripts/Grepodata.user.js'), 'body');
-// injectScript(chrome.runtime.getURL('src/scripts/Patches.js'), 'body');
-// injectScript(chrome.runtime.getURL('src/content/FlaskTool.user.js'), 'body');
+injectScript(chrome.runtime.getURL('src/scripts/Allarm.user.js'), 'body');
