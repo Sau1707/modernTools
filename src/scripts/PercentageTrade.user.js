@@ -45,8 +45,6 @@
             .pct_trade_btn .img_trade { background-position: 0 0; }
             .eq_trade_btn  .img_trade { background-position: -27px 0; }
 
-            #trade_tab .content { min-height: 420px; }
-
             /* Unit profile grid */
             #app_trade { 
                 width:96%; margin:20px auto; display:grid; grid-template-columns: repeat(10, 10%);
@@ -350,4 +348,193 @@
             }
         } catch { }
     });
+})();
+
+
+// Add the Town Trade Improvement (show needed amounts to max capacity)
+(function () {
+    'use strict';
+    const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+
+    function waitForGame() {
+        if (!uw.jQuery || !uw.Layout || !uw.Layout.wnd || !uw.GPWindowMgr) {
+            setTimeout(waitForGame, 1000);
+            return;
+        }
+        init();
+    }
+
+    function init() {
+        setInterval(checkTradeWindows, 1000);
+    }
+
+    function checkTradeWindows() {
+        try {
+            const wndArray = uw.Layout.wnd.getOpen(uw.Layout.wnd.TYPE_TOWN);
+            for (const k in wndArray) {
+                if (!wndArray.hasOwnProperty(k)) continue;
+                const wnd = wndArray[k];
+                if (!wnd || typeof wnd.getAction !== 'function') continue;
+
+                if (wnd.getAction() === 'trading') {
+                    const $content = wnd.getJQElement().find('.gpwindow_content');
+                    if ($content.length && !$content.data('tti_initialized')) {
+                        const wndId = wnd.getID();
+                        addTownTradeImprovement($content, wndId);
+                        $content.data('tti_initialized', true);
+                    }
+                }
+            }
+        } catch (e) {
+            // Silent fail – game internals may change
+        }
+    }
+
+    function addTownTradeImprovement($wnd, wndId) {
+        try {
+            const $ = uw.jQuery;
+
+            // Already added or not a normal town trade window
+            if ($wnd.find(".tti_needed").length > 0 || $wnd.find(".town-capacity-indicator").length === 0) {
+                return;
+            }
+
+            function getRes(res_type, wnd_id, mode) {
+                const res = {};
+                res.wnd = $("DIV#gpwnd_" + wnd_id);
+                res.selector = res.wnd.find("#town_capacity_" + res_type);
+                res.caption = {
+                    curr: parseInt(res.wnd.find("#big_progressbar .caption .curr").html(), 10) || 0,
+                    max: parseInt(res.wnd.find("#big_progressbar .caption .max").html(), 10) || 0,
+                    now: parseInt(res.wnd.find("#trade_type_" + res_type + " input").val(), 10) || 0
+                };
+                res.amounts = {
+                    curr: parseInt(res.selector.find(".curr").html(), 10) || 0,
+                    curr2: parseInt((res.selector.find(".curr2").html() || "").substring(3), 10) || 0,
+                    curr3: parseInt((res.selector.find(".curr3").html() || "").substring(3), 10) || 0,
+                    max: parseInt(res.selector.find(".max").html(), 10) || 0
+                };
+
+                // City festival caps (wood/iron 15000, stone 18000)
+                if (mode === "cult" || mode === "cultreverse") {
+                    res.amounts.max = (res_type === "stone") ? 18000 : 15000;
+                }
+                if (mode === "cultreverse") {
+                    const townrescurrent = $("div#ui_box div.ui_resources_bar div.indicator[data-type='" + res_type + "'] div.amount").text().replace(/\./g, '');
+                    res.needed = parseInt(townrescurrent, 10) - res.amounts.max;
+                } else {
+                    res.needed = res.amounts.max - res.amounts.curr - res.amounts.curr2;
+                }
+
+                // Theater caps (wood/iron 10000, stone 12000)
+                if (mode === "thea" || mode === "theareverse") {
+                    res.amounts.max = (res_type === "stone") ? 12000 : 10000;
+                }
+                if (mode === "theareverse") {
+                    const townrescurrent = $("div#ui_box div.ui_resources_bar div.indicator[data-type='" + res_type + "'] div.amount").text().replace(/\./g, '');
+                    res.needed = parseInt(townrescurrent, 10) - res.amounts.max;
+                } else {
+                    res.needed = res.amounts.max - res.amounts.curr - res.amounts.curr2;
+                }
+
+                return res;
+            }
+
+            // Show how much is needed to reach max for the selected mode (base = storage max)
+            $wnd.find(".tripple-progress-progressbar").each(function () {
+                const res_type = this.id.split("_")[2]; // town_capacity_wood_progressbar => "wood"
+                const res = getRes(res_type, wndId);    // mode undefined: uses storage max
+                $(this).find(".amounts").append(
+                    '<span class="tti_needed tti_needed_' + res_type + '_' + wndId + '"> &#9658; ' + res.needed + '</span>'
+                );
+            });
+
+            // Buttons container
+            $wnd.find("#trade_tab").append(
+                '<div id="tti_improvement_trade">' +
+                '<a id="tti_wood_' + wndId + '_max"  class="tti_trade tti_max"        style="top:200px"></a>' +
+                '<a id="tti_stone_' + wndId + '_max" class="tti_trade tti_max"        style="top:234px"></a>' +
+                '<a id="tti_iron_' + wndId + '_max"  class="tti_trade tti_max"        style="top:268px"></a>' +
+                '<a id="tti_wood_' + wndId + '_cult" class="tti_trade tti_send_cult"  style="top:200px"></a>' +
+                '<a id="tti_stone_' + wndId + '_cult"class="tti_trade tti_send_cult"  style="top:234px"></a>' +
+                '<a id="tti_iron_' + wndId + '_cult" class="tti_trade tti_send_cult"  style="top:268px"></a>' +
+                '<a id="tti_wood_' + wndId + '_thea" class="tti_trade tti_send_thea"  style="top:200px"></a>' +
+                '<a id="tti_stone_' + wndId + '_thea"class="tti_trade tti_send_thea"  style="top:234px"></a>' +
+                '<a id="tti_iron_' + wndId + '_thea" class="tti_trade tti_send_thea"  style="top:268px"></a>' +
+                '</div>'
+            );
+
+            // Styles (same icons as original FLASK-TOOLS feature)
+            $wnd.find(".tti_send_cult").css({
+                right: "84px",
+                position: "absolute",
+                height: "16px",
+                width: "22px",
+                "background-image": "url(https://flasktools.altervista.org/images/game/trade_cult.png)",
+                "background-repeat": "no-repeat",
+                "background-position": "0px -1px"
+            });
+            $wnd.find(".tti_send_thea").css({
+                right: "63px",
+                position: "absolute",
+                height: "16px",
+                width: "22px",
+                "background-image": "url(https://flasktools.altervista.org/images/game/trade_thea.png)",
+                "background-repeat": "no-repeat",
+                "background-position": "0px -1px"
+            });
+            $wnd.find(".tti_max").css({
+                right: "105px",
+                position: "absolute",
+                height: "16px",
+                width: "22px",
+                "background-image": "url(https://flasktools.altervista.org/images/game/trade_arrow.png)",
+                "background-repeat": "no-repeat",
+                "background-position": "0px -1px"
+            });
+
+            $wnd.find(".tti_trade").hover(
+                function () {
+                    $(this).css({ "background-position": "0px -17px" });
+                },
+                function () {
+                    $(this).css({ "background-position": "0px -1px" });
+                }
+            );
+
+            $wnd.find(".tti_trade").on("click", function () {
+                const id = this.id.split("_"); // [ 'tti', res_type, wndId, mode ]
+                const res_type = id[1];
+                const wnd_id = id[2];
+                const mode = id[3] === 'max' ? undefined : id[3]; // "max" uses storage max
+
+                const res = getRes(res_type, wnd_id, mode);
+
+                let send;
+                if (res.needed - res.amounts.curr3 <= 0 || res.caption.curr <= 0 || res.amounts.curr3 > 0) {
+                    send = 0;
+                } else if (res.needed - res.amounts.curr3 > res.caption.curr) {
+                    send = res.caption.curr + res.amounts.curr3;
+                } else {
+                    send = res.needed;
+                }
+
+                res.wnd.find("#trade_type_" + res_type + " input")
+                    .val(send)
+                    .select()
+                    .blur();
+            });
+
+            // Simple native tooltips
+            $wnd.find('.tti_max').attr('title', 'Riempie fino alla capacità di magazzino');
+            $wnd.find('.tti_send_cult').attr('title', 'Risorse per feste cittadine');
+            $wnd.find('.tti_send_thea').attr('title', 'Risorse per teatro');
+
+        } catch (err) {
+            // In caso di problemi, non bloccare il gioco
+            console.error('TTI extract error:', err);
+        }
+    }
+
+    waitForGame();
 })();

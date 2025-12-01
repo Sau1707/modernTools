@@ -1,340 +1,496 @@
 // ==UserScript==
 // @name         TownIcons
-// @author       Sau1707
+// @author       Sau1707 - Taken from Flasktool
 // @description  Adds town icons to the town list and strategic map based on unit composition.
 // @version      1.0.0
 // @match        http://*.grepolis.com/game/*
 // @match        https://*.grepolis.com/game/*
 // @icon         https://raw.githubusercontent.com/Sau1707/modernTools/refs/heads/main/public/logo.png
-// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
-// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/QuickPlan.user.js
+// @updateURL    https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/TownIcons.user.js
+// @downloadURL  https://github.com/Sau1707/modernTools/raw/refs/heads/main/src/content/TownIcons.user.js
 // @grant        unsafeWindow
 // ==/UserScript==
-
 
 (function () {
     'use strict';
     const uw = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
-    const $ = uw.jQuery || jQuery;
 
-    const WID = uw.Game.world_id;
-    const PID = uw.Game.player_id;
-    const MID = uw.Game.market_id;
+    function withJQuery(fn) {
+        var check = setInterval(function () {
+            if (uw.jQuery && uw.Game && uw.ITowns && uw.GameData && uw.layout_main_controller) {
+                clearInterval(check);
+                fn(uw.jQuery);
+            }
+        }, 250);
+    }
 
-    // Configuration
-    const FLASK_SPRITE = "https://flasktools.altervista.org/images/vxk8zp.png";
+    withJQuery(function ($) {
+        var WID, MID, PID;
+        var flask_sprite = "https://flasktools.altervista.org/images/vxk8zp.png";
 
-    // State
-    let autoTownTypes = {};
-    let manuTownTypes = loadValue(WID + "_townTypes", {});
-    let population = {};
+        var autoTownTypes = {};
+        var manuTownTypes = {};
+        var population = {};
 
-    // Helper functions
-    function loadValue(name, default_val) {
-        let value = localStorage.getItem(name);
-        if (value) {
+        function loadWorldVars() {
+            WID = uw.Game.world_id;
+            MID = uw.Game.market_id;
+            PID = uw.Game.player_id;
+
             try {
-                return JSON.parse(value);
+                var stored = localStorage.getItem(WID + "_townTypes");
+                manuTownTypes = stored ? JSON.parse(stored) : {};
             } catch (e) {
-                return value;
+                manuTownTypes = {};
             }
         }
-        return default_val;
-    }
 
-    function saveValue(name, val) {
-        localStorage.setItem(name, JSON.stringify(val));
-    }
+        function saveValue(name, val) {
+            localStorage.setItem(name, val);
+        }
 
-    const TownIcons = {
-        types: {
-            // Land Off
-            lo: 1, ld: 2, sh: 3, di: 4, un: 5,
-            // Sea Off
-            so: 6, sd: 7, ko: 8, ti: 9, gr: 10,
-            // Fly Off
-            fo: 11, fd: 12, dp: 13, no: 14, po: 15,
-            // Other
-            re: 16, wd: 17, st: 18, si: 19, bu: 20,
-            he: 21, ch: 22, bo: 23, fa: 24, wo: 25
-        },
+        var TownIcons = {
+            types: {
+                // Automatic Icons (indexes in sprite)
+                lo: 10,
+                so: 0,
+                fo: 3,
+                ld: 6,
+                sd: 9,
+                fd: 7,
+                bu: 14,
+                bi: 9,
+                ao: 6,
+                ad: 10,
+                po: 22,
+                no: 12,
+                // Manual Icons
+                fa: 20,
+                re: 15,
+                di: 2,
+                sh: 1,
+                lu: 13,
+                dp: 11,
+                ha: 15,
+                si: 18,
+                ra: 17,
+                ch: 19,
+                ti: 23,
+                un: 5,
+                wd: 16,
+                wo: 24,
+                bo: 13,
+                gr: 21,
+                st: 17,
+                is: 26,
+                he: 4,
+                ko: 8
+            },
 
-        init: function () {
-            this.addStyles();
-            this.calculateAutoTownTypes();
-            this.setupTownListHook();
-            this.setupMapHook();
-            this.setupTownIconSelector();
+            activate: function () {
+                if (!$('.town_name_area').length) {
+                    return;
+                }
 
-            // Re-calculate on unit changes (if possible, or periodically)
-            // For now, run once on load and maybe on town switch
-            $.Observer(uw.GameEvents.town.town_switch).subscribe("town_switch_icon", () => {
-                this.updateCurrentTownIcon();
-            });
-        },
+                $('#town_icon').remove();
+                $('#flask_townicons_field').remove();
 
-        addStyles: function () {
-            const style = `
-                .icon_small { width: 25px; height: 25px; background-image: url(${FLASK_SPRITE}); display: inline-block; vertical-align: middle; }
-                .icon_big { width: 25px; height: 25px; background-image: url(${FLASK_SPRITE}); display: inline-block; vertical-align: middle; }
-                
-                /* Define classes for each type */
-                ${Object.keys(this.types).map(type => `
-                    .townicon_${type} { background-position: ${this.types[type] * -25}px -27px; }
-                    .townicon_${type}.auto { background-position: ${this.types[type] * -25}px 0px; }
-                `).join('')}
-                
-                #town_icon { position:absolute; top:36px; left:130px; z-index:10; cursor:pointer; }
-                #town_icon .select_town_icon { position: absolute; top: 25px; left: 0; width: 145px; display: none; padding: 2px; border: 3px inset rgb(7, 99, 12); background: url(https://gp${MID}.innogamescdn.com/images/game/popup/middle_middle.png); z-index: 20; }
-                #town_icon .item-list { max-height: 400px; overflow-y: auto; }
-                #town_icon .option_s { cursor: pointer; width: 20px; height: 20px; margin: 2px; float: left; border: 2px solid transparent; }
-                #town_icon .option_s:hover { border-color: rgb(59, 121, 81); }
-                #town_icon .sel { border-color: rgb(202, 176, 109); }
-                
-                /* Town List Styles */
-                #town_groups_list .icon_small { position: absolute; left: 0; top: 0; transform: scale(0.7); }
-                #town_groups_list .town_group_town { position: relative; }
-            `;
-            $('<style>').text(style).appendTo('head');
-        },
+                var townType = manuTownTypes[uw.Game.townId] || autoTownTypes[uw.Game.townId] || "no";
 
-        calculateAutoTownTypes: function () {
-            try {
-                const townArray = uw.ITowns.getTowns();
-                const unitArrayTemplate = {
-                    "sword": 0, "archer": 0, "hoplite": 0, "chariot": 0, "godsent": 0, "rider": 0, "slinger": 0, "catapult": 0,
-                    "small_transporter": 0, "big_transporter": 0, "manticore": 0, "harpy": 0, "pegasus": 0, "cerberus": 0,
-                    "minotaur": 0, "medusa": 0, "zyklop": 0, "centaur": 0, "fury": 0, "sea_monster": 0,
-                    "bireme": 0, "trireme": 0, "attack_ship": 0, "demolition_ship": 0, "colonize_ship": 0
-                };
+                $('<div id="town_icon"><div class="town_icon_bg"><div class="icon_big townicon_' +
+                    townType +
+                    '"></div></div></div>').appendTo('.town_name_area');
 
-                // Add god specific units
-                if (uw.Game.hasArtemis) Object.assign(unitArrayTemplate, { "griffin": 0, "calydonian_boar": 0 });
-                if (uw.GameData.gods.aphrodite) Object.assign(unitArrayTemplate, { "siren": 0, "satyr": 0 });
-                if (uw.GameData.gods.ares) Object.assign(unitArrayTemplate, { "spartoi": 0, "ladon": 0 });
+                $('#town_icon .icon_big').css({
+                    backgroundPosition: (TownIcons.types[townType] || 0) * -25 + 'px 0px'
+                });
 
-                for (const townId in townArray) {
-                    if (townArray.hasOwnProperty(townId)) {
-                        const town = townArray[townId];
-                        const units = town.units();
-                        let type = { lo: 0, ld: 0, so: 0, sd: 0, fo: 0, fd: 0 };
-                        let totalUnits = 0;
+                $('<style id="flask_townicons_field" type="text/css">' +
+                    '#town_icon { background:url(' + flask_sprite + ') 0 -125px no-repeat; position:absolute; width:69px; height:61px; left:-47px; top:0px; z-index: 10; } ' +
+                    '#town_icon .town_icon_bg { background:url(' + flask_sprite + ') -76px -129px no-repeat; width:43px; height:43px; left:25px; top:4px; cursor:pointer; position: relative; } ' +
+                    '#town_icon .town_icon_bg:hover { filter:url(#Brightness11); -webkit-filter:brightness(1.1); box-shadow: 0px 0px 15px rgb(1, 197, 33); } ' +
+                    '#town_icon .icon_big { position:absolute; left:9px; top:9px; height:25px; width:25px; } ' +
+                    '#town_icon .select_town_icon {position: absolute; top:47px; left:23px; width:145px; display:none; padding:2px; border:3px inset rgb(7, 99, 12); box-shadow:rgba(0, 0, 0, 0.5) 4px 4px 6px; border-radius:0px 10px 10px 10px;' +
+                    'background:url(https://gp' + MID + '.innogamescdn.com/images/game/popup/middle_middle.png); } ' +
+                    '#town_icon .item-list { max-height:400px; max-width:200px; align:right; overflow-x:hidden; } ' +
+                    '#town_icon .option_s { cursor:pointer; width:20px; height:20px; margin:0px; padding:2px 2px 3px 3px; border:2px solid rgba(0,0,0,0); border-radius:5px; background-origin:content-box; background-clip:content-box;} ' +
+                    '#town_icon .option_s:hover { border: 2px solid rgb(59, 121, 81) !important;-webkit-filter: brightness(1.3); } ' +
+                    '#town_icon .sel { border: 2px solid rgb(202, 176, 109); } ' +
+                    '#town_icon hr { width:145px; margin:0px 0px 7px 0px; position:relative; top:3px; border:0px; border-top:2px dotted #000; float:left} ' +
+                    '#town_icon .auto_s { width:136px; height:16px; float:left} ' +
+                    '.ui_quickbar .left, .ui_quickbar .right { width:46%; } ' +
+                    '.town_name_area { z-index:11; left:52%; } ' +
+                    '.town_name_area .left { z-index:20; left:-39px; } ' +
+                    '</style>').appendTo('head');
 
-                        for (const unit in unitArrayTemplate) {
-                            const count = parseInt(units[unit], 10) || 0;
-                            totalUnits += count;
+                var icoArray = [
+                    'ld', 'lo', 'sh', 'di', 'un',
+                    'sd', 'so', 'ko', 'ti', 'gr',
+                    'fd', 'fo', 'dp', 'no', 'po',
+                    're', 'wd', 'st', 'si', 'bu',
+                    'he', 'ch', 'bo', 'fa', 'wo'
+                ];
 
-                            if (!uw.GameData.units[unit]) continue;
+                $('<div class="select_town_icon dropdown-list default active"><div class="item-list"></div></div>')
+                    .appendTo("#town_icon");
 
-                            if (!uw.GameData.units[unit].is_naval) {
-                                if (uw.GameData.units[unit].flying) {
-                                    type.fd += ((uw.GameData.units[unit].def_hack + uw.GameData.units[unit].def_pierce + uw.GameData.units[unit].def_distance) / 3 * count);
-                                    type.fo += (uw.GameData.units[unit].attack * count);
-                                } else {
-                                    type.ld += ((uw.GameData.units[unit].def_hack + uw.GameData.units[unit].def_pierce + uw.GameData.units[unit].def_distance) / 3 * count);
-                                    type.lo += (uw.GameData.units[unit].attack * count);
-                                }
-                            } else {
-                                type.sd += (uw.GameData.units[unit].defense * count);
-                                type.so += (uw.GameData.units[unit].attack * count);
-                            }
-                        }
+                for (var i = 0; i < icoArray.length; i++) {
+                    $('.select_town_icon .item-list')
+                        .append('<div class="option_s icon_small townicon_' + icoArray[i] + '" name="' + icoArray[i] + '"></div>');
+                }
 
-                        // Determine type
-                        let z = ((type.sd + type.ld + type.fd) <= (type.so + type.lo + type.fo)) ? "o" : "d";
-                        let temp = 0;
+                $('<hr><div class="option_s auto_s" name="auto"><b>Auto</b></div>')
+                    .appendTo('.select_town_icon .item-list');
 
-                        // Default
-                        autoTownTypes[town.id] = "no";
+                $('#town_icon .option_s').click(function () {
+                    $("#town_icon .sel").removeClass("sel");
+                    $(this).addClass("sel");
 
-                        for (let t in type) {
-                            if (temp < type[t]) {
-                                autoTownTypes[town.id] = t[0] + z;
-                                temp = type[t];
-                            }
-                        }
-                        // Population check for "Empty" (po)
-                        if (uw.GameData.buildings && uw.GameData.buildings.farm) {
-                            const popByFarmLevel = [114, 121, 134, 152, 175, 206, 245, 291, 343, 399, 458, 520, 584, 651, 720, 790, 863, 938, 1015, 1094, 1174, 1257, 1341, 1426, 1514, 1602, 1693, 1785, 1878, 1973, 2070, 2168, 2267, 2368, 2470, 2573, 2678, 2784, 2891, 3000, 3109, 3220, 3332, 3446, 3560];
-                            const buildVal = uw.GameData.buildings;
-                            const buildings = town.buildings();
-                            const farmLevel = buildings.getBuildingLevel("farm");
+                    var name = $(this).attr("name");
+                    if (name === "auto") {
+                        delete manuTownTypes[uw.Game.townId];
+                    } else {
+                        manuTownTypes[uw.Game.townId] = name;
+                    }
+                    TownIcons.changeTownIcon();
+                    TownIcons.Map.activate();
 
-                            let popMax;
-                            if (buildVal.farm.farm_factor != undefined) {
-                                popMax = Math.floor(buildVal.farm.farm_factor * Math.pow(farmLevel, buildVal.farm.farm_pow));
-                            } else {
-                                popMax = popByFarmLevel[farmLevel - 1] || 0;
-                            }
+                    saveValue(WID + "_townTypes", JSON.stringify(manuTownTypes));
+                });
 
-                            let popBuilding = 0;
-                            const levelArray = buildings.getLevels();
-                            for (const b in levelArray) {
-                                if (buildVal[b]) {
-                                    popBuilding += Math.round(buildVal[b].pop * Math.pow(levelArray[b], buildVal[b].pop_factor));
-                                }
-                            }
+                $('#town_icon .town_icon_bg').click(function () {
+                    var el = $('#town_icon .select_town_icon').get(0);
+                    el.style.display = (el.style.display === "none" || el.style.display === "") ? "block" : "none";
+                });
 
-                            let popExtra = 0;
-                            if (town.getResearches && town.getResearches().attributes.plow) popExtra += 200;
-                            if (buildings.getBuildingLevel("thermal")) popMax *= 1.1;
+                var selected = manuTownTypes[uw.Game.townId] || (autoTownTypes[uw.Game.townId] ? "auto" : "");
+                if (selected) {
+                    $('#town_icon .select_town_icon [name="' + selected + '"]').addClass("sel");
+                }
 
-                            const availablePop = town.getAvailablePopulation();
-                            const unitsPop = Math.floor((popMax + popExtra) - (popBuilding + availablePop));
+                $.Observer(uw.GameEvents.town.town_switch)
+                    .subscribe("town_switch_icon", TownIcons.switchTown);
+            },
 
-                            if (unitsPop < 300) {
-                                autoTownTypes[town.id] = "po";
-                            }
+            switchTown: function () {
+                TownIcons.changeTownIcon();
+            },
+
+            changeTownIcon: function () {
+                var townType = manuTownTypes[uw.Game.townId] || autoTownTypes[uw.Game.townId] || "no";
+
+                $('#town_icon .icon_big')
+                    .removeClass()
+                    .addClass('icon_big townicon_' + townType + " auto")
+                    .css({
+                        backgroundPosition: (TownIcons.types[townType] || 0) * -25 + 'px 0px'
+                    });
+
+                $('#town_icon .sel').removeClass("sel");
+                var sel = manuTownTypes[uw.Game.townId] || (autoTownTypes[uw.Game.townId] ? "auto" : "");
+                if (sel) {
+                    $('#town_icon .select_town_icon [name="' + sel + '"]').addClass("sel");
+                }
+
+                if ($('#town_icon .select_town_icon').length) {
+                    $('#town_icon .select_town_icon').get(0).style.display = "none";
+                }
+            },
+
+            Map: {
+                activate: function () {
+                    if (!$('#minimap_islands_layer').length) {
+                        return;
+                    }
+
+                    $('#flask_townicons_map').remove();
+
+                    var style_str = "<style id='flask_townicons_map' type='text/css'>";
+                    for (var id in autoTownTypes) {
+                        if (!autoTownTypes.hasOwnProperty(id)) continue;
+                        var tt = manuTownTypes[id] || autoTownTypes[id];
+                        style_str += "#mini_t" + id + ", #town_flag_" + id + " .flagpole {" +
+                            "background: rgb(255, 187, 0) url(" + flask_sprite + ") " +
+                            ((TownIcons.types[tt] || 0) * -25) +
+                            "px -27px repeat !important; } ";
+                    }
+
+                    style_str += ".own_town .flagpole, #main_area .m_town.player_" + PID +
+                        " { z-index: 100 !important; cursor: pointer; width:19px!important; height:19px!important;" +
+                        " border-radius: 11px; border: 2px solid rgb(16, 133, 0); margin: -4px !important; font-size: 0em !important;" +
+                        " box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5); } ";
+
+                    style_str += ".own_town .flagpole:hover, .m_town:hover { z-index: 101 !important; filter: brightness(1.2);" +
+                        " -webkit-filter: brightness(1.2); font-size: 2em; margin-top: -1px; } ";
+
+                    style_str += "#minimap_islands_layer .m_town { z-index: 99; cursor: pointer; } ";
+
+                    style_str += "</style>";
+                    $(style_str).appendTo('head');
+
+                    $('#minimap_islands_layer').off('click', '.m_town');
+                    $('#minimap_islands_layer').on('click', '.m_town', function (e) {
+                        var id = parseInt(this.id.substring(6), 10);
+
+                        if (typeof (uw.ITowns.getTown(id)) !== "undefined") {
+                            uw.Layout.contextMenu(e, 'determine', { id: id, name: uw.ITowns.getTown(id).name });
                         } else {
-                            if (town.getAvailablePopulation() > 2500) {
-                                autoTownTypes[town.id] = "po";
-                            }
+                            uw.Layout.contextMenu(e, 'determine', { id: id });
                         }
-                    }
-                }
-            } catch (e) {
-                console.error("Error calculating auto town types", e);
-            }
-        },
+                        e.stopPropagation();
+                    });
 
-        setupTownListHook: function () {
-            // Hook into the town list rendering
-            // This is tricky as it depends on Grepolis internals. 
-            // We'll use a MutationObserver on the town list container if possible, or hook the render function as in flash.js
-
-            // flash.js approach: hook uw.layout_main_controller.sub_controllers...
-            // We will try a safer approach first: MutationObserver on #town_groups_list
-
-            const observer = new MutationObserver((mutations) => {
-                this.renderTownListIcons();
-            });
-
-            const target = document.getElementById('town_groups_list');
-            if (target) {
-                observer.observe(target, { childList: true, subtree: true });
-                this.renderTownListIcons(); // Initial render
-            } else {
-                // Wait for it?
-                const check = setInterval(() => {
-                    const t = document.getElementById('town_groups_list');
-                    if (t) {
-                        clearInterval(check);
-                        observer.observe(t, { childList: true, subtree: true });
-                        this.renderTownListIcons();
-                    }
-                }, 1000);
-            }
-        },
-
-        renderTownListIcons: function () {
-            $("#town_groups_list .town_group_town").each(function () {
-                const townId = $(this).attr('name');
-                if (!townId) return;
-
-                if ($(this).find('.icon_small').length === 0) {
-                    const type = manuTownTypes[townId] || autoTownTypes[townId] || "no";
-                    const icon = $('<div class="icon_small townicon_' + type + '"></div>');
-                    $(this).prepend(icon);
-                }
-            });
-        },
-
-        setupMapHook: function () {
-            // Add icons to the strategic map
-            // flash.js uses CSS injection for map icons.
-
-            this.updateMapStyles();
-
-            // Re-inject styles when map moves/updates? 
-            // The CSS uses IDs like #mini_t{townId}, so as long as those IDs exist, the CSS applies.
-            // We just need to ensure the CSS is up to date with autoTownTypes/manuTownTypes.
-        },
-
-        updateMapStyles: function () {
-            $('#flask_townicons_map').remove();
-
-            let styleStr = "<style id='flask_townicons_map' type='text/css'>";
-            const towns = uw.ITowns.getTowns();
-
-            for (const townId in towns) {
-                if (towns.hasOwnProperty(townId)) {
-                    const type = manuTownTypes[townId] || autoTownTypes[townId] || "no";
-                    if (this.types[type]) {
-                        styleStr += `#mini_t${townId}, #town_flag_${townId} .flagpole {
-                             background: rgb(255, 187, 0) url(${FLASK_SPRITE}) ${this.types[type] * -25}px -27px repeat !important;
-                         } `;
-                    }
+                    $('#minimap_islands_layer').off("mousedown");
+                    $('#minimap_islands_layer').on("mousedown", function () {
+                        if ($('#context_menu').get(0)) {
+                            $('#context_menu').get(0).remove();
+                        }
+                    });
                 }
             }
-            styleStr += "</style>";
-            $(styleStr).appendTo('head');
-        },
+        };
 
-        setupTownIconSelector: function () {
-            // Add the selector to the UI (near town name)
-            if ($('#town_icon').length) return;
+        // Base CSS for small icons (town list / dropdown)
+        (function addBaseTownIconCSS() {
+            if ($('#flask_townicons').length) {
+                return;
+            }
+            var style_str = '<style id="flask_townicons" type="text/css">';
+            style_str += '.icon_small { position:relative; height:20px; width:25px; } ';
+            for (var s in TownIcons.types) {
+                if (!TownIcons.types.hasOwnProperty(s)) continue;
+                style_str += '.townicon_' + s +
+                    ' { background:url(' + flask_sprite + ') ' +
+                    ((TownIcons.types[s] || 0) * -25) + 'px -26px repeat; float:left;} ';
+            }
+            style_str += '</style>';
+            $(style_str).appendTo('head');
+        })();
 
-            const container = $('<div id="town_icon"><div class="icon_big"></div></div>');
-            $('.town_name_area').append(container);
-
-            this.updateCurrentTownIcon();
-
-            // Build dropdown
-            const dropdown = $('<div class="select_town_icon dropdown-list default active"><div class="item-list"></div></div>');
-            const icoArray = ['ld', 'lo', 'sh', 'di', 'un', 'sd', 'so', 'ko', 'ti', 'gr', 'fd', 'fo', 'dp', 'no', 'po', 're', 'wd', 'st', 'si', 'bu', 'he', 'ch', 'bo', 'fa', 'wo'];
-
-            icoArray.forEach(code => {
-                dropdown.find('.item-list').append(`<div class="option_s icon_small townicon_${code}" name="${code}"></div>`);
-            });
-            dropdown.find('.item-list').append('<hr><div class="option_s auto_s" name="auto" style="width:100%; text-align:center;"><b>Auto</b></div>');
-
-            container.append(dropdown);
-
-            // Events
-            container.find('.icon_big').click((e) => {
-                e.stopPropagation();
-                dropdown.toggle();
-            });
-
-            dropdown.find('.option_s').click(function (e) {
-                e.stopPropagation();
-                const name = $(this).attr('name');
-                const townId = uw.Game.townId;
-
-                if (name === 'auto') {
-                    delete manuTownTypes[townId];
-                } else {
-                    manuTownTypes[townId] = name;
+        // Town list (city list) icons + population percentage
+        var TownList = {
+            activate: function () {
+                if ($('#flask_town_list').length) {
+                    return;
                 }
 
-                saveValue(WID + "_townTypes", manuTownTypes);
-                TownIcons.updateCurrentTownIcon();
-                TownIcons.updateMapStyles();
-                TownIcons.renderTownListIcons(); // Update list too
-                dropdown.hide();
-            });
+                $('<style id="flask_town_list" type="text/css">' +
+                    '#town_groups_list .item { text-align: left; padding-left:5px; } ' +
+                    '#town_groups_list .inner_column { border: 1px solid rgba(100, 100, 0, 0.3);margin: -2px 0px 0px 2px; } ' +
+                    '#town_groups_list .island_quest_icon { position: absolute; right: 30px; top: 3px; } ' +
+                    '#town_groups_list .island_quest_icon.hidden_icon { display:none; } ' +
+                    '#town_groups_list .jump_town { right: 37px !important; } ' +
+                    '#town_groups_list .pop_percent { position: absolute; right: 2px; top:0px; font-size: 0.7em; display:block !important;} ' +
+                    '#town_groups_list .full { color: green; } ' +
+                    '#town_groups_list .threequarter { color: darkgoldenrod; } ' +
+                    '#town_groups_list .half { color: darkred; } ' +
+                    '#town_groups_list .quarter { color: red; } ' +
+                    '</style>').appendTo('head');
 
-            $(document).click(() => dropdown.hide());
-        },
+                // hook into town list render
+                var idx = 0;
+                while (uw.layout_main_controller.sub_controllers[idx] &&
+                    uw.layout_main_controller.sub_controllers[idx].name !== 'town_name_area') {
+                    idx++;
+                }
 
-        updateCurrentTownIcon: function () {
-            const townId = uw.Game.townId;
-            const type = manuTownTypes[townId] || autoTownTypes[townId] || "no";
-            $('#town_icon .icon_big')
-                .removeClass()
-                .addClass('icon_big townicon_' + type + ' auto')
-                .css('background-position', (this.types[type] * -25) + 'px 0px');
+                var sub = uw.layout_main_controller.sub_controllers[idx];
+                if (!sub || !sub.controller || !sub.controller.town_groups_list_view) {
+                    return;
+                }
+
+                var view = sub.controller.town_groups_list_view;
+                if (!view.render_old) {
+                    view.render_old = view.render;
+                    view.render = function () {
+                        view.render_old();
+                        TownList.change();
+                    };
+                }
+
+                if ($('#town_groups_list').length) {
+                    TownList.change();
+                }
+            },
+
+            change: function () {
+                var $list = $('#town_groups_list');
+                if (!$list.length) {
+                    return;
+                }
+
+                // Clear previous icons / percentages we added
+                $list.find('.flask_townicon, .pop_percent').remove();
+
+                $list.find('.town_group_town').each(function () {
+                    var $item = $(this);
+                    var town_id_str = $item.attr('name') || $item.data('id') || '';
+                    var town_id = parseInt(town_id_str, 10);
+                    if (!town_id) {
+                        return;
+                    }
+
+                    var tt = manuTownTypes[town_id] || autoTownTypes[town_id] || "no";
+
+                    var percent = -1;
+                    var popClass = "";
+                    if (population[town_id] && typeof population[town_id].percent === 'number') {
+                        percent = population[town_id].percent;
+                        popClass = "full";
+                        if (percent < 75) { popClass = "threequarter"; }
+                        if (percent < 50) { popClass = "half"; }
+                        if (percent < 25) { popClass = "quarter"; }
+                    }
+
+                    var iconHtml = '<div class="icon_small flask_townicon townicon_' + tt + '"></div>';
+                    var percentHtml = '';
+                    if (percent >= 0) {
+                        percentHtml = '<div class="pop_percent ' + popClass + '">' + percent + '%</div>';
+                    }
+
+                    $item.prepend(iconHtml + percentHtml);
+                });
+            }
+        };
+
+        function computeAutoTownTypes() {
+            autoTownTypes = {};
+            population = {};
+
+            var towns = uw.ITowns.getTowns();
+            if (!towns) { return; }
+
+            var popByFarmLevel = [
+                114, 121, 134, 152, 175, 206, 245, 291, 343, 399,
+                458, 520, 584, 651, 720, 790, 863, 938, 1015, 1094,
+                1174, 1257, 1341, 1426, 1514, 1602, 1693, 1785, 1878,
+                1973, 2070, 2168, 2267, 2368, 2470, 2573, 2678, 2784,
+                2891, 3000, 3109, 3220, 3332, 3446, 3560
+            ];
+
+            for (var id in towns) {
+                if (!towns.hasOwnProperty(id)) continue;
+                var town = towns[id];
+
+                // unit profile
+                var typeVals = { lo: 0, ld: 0, so: 0, sd: 0, fo: 0, fd: 0 };
+
+                for (var unit in uw.GameData.units) {
+                    if (!uw.GameData.units.hasOwnProperty(unit)) continue;
+                    var count = parseInt(town.units()[unit], 10) || 0;
+                    if (!count) continue;
+
+                    var data = uw.GameData.units[unit];
+                    if (!data.is_naval) {
+                        if (data.flying) {
+                            typeVals.fd += ((data.def_hack + data.def_pierce + data.def_distance) / 3) * count;
+                            typeVals.fo += data.attack * count;
+                        } else {
+                            typeVals.ld += ((data.def_hack + data.def_pierce + data.def_distance) / 3) * count;
+                            typeVals.lo += data.attack * count;
+                        }
+                    } else {
+                        typeVals.sd += data.defense * count;
+                        typeVals.so += data.attack * count;
+                    }
+                }
+
+                var mode = ((typeVals.sd + typeVals.ld + typeVals.fd) <= (typeVals.so + typeVals.lo + typeVals.fo)) ? "o" : "d";
+                var maxVal = 0;
+                for (var key in typeVals) {
+                    if (!typeVals.hasOwnProperty(key)) continue;
+                    if (typeVals[key] > maxVal) {
+                        autoTownTypes[town.id] = key[0] + mode;
+                        maxVal = typeVals[key];
+                    }
+                }
+                if (maxVal < 1000) {
+                    autoTownTypes[town.id] = "no";
+                }
+
+                // population / garrison percentage
+                try {
+                    var buildVal = uw.GameData.buildings;
+                    var levelArray = town.buildings().getLevels();
+                    var farmLevel = town.buildings().getBuildingLevel("farm");
+                    var popMax;
+
+                    if (buildVal.farm.farm_factor !== undefined) {
+                        popMax = Math.floor(buildVal.farm.farm_factor * Math.pow(farmLevel, buildVal.farm.farm_pow));
+                    } else {
+                        popMax = popByFarmLevel[farmLevel - 1];
+                    }
+
+                    var popPlow = town.getResearches().attributes.plow ? 200 : 0;
+                    var popFactor = town.getBuildings().getBuildingLevel("thermal") ? 1.1 : 1.0;
+                    var popExtra = town.getPopulationExtra();
+
+                    if (town.god && town.god() === 'aphrodite') {
+                        popMax += farmLevel * 5;
+                    }
+
+                    var popBuilding = 0;
+                    for (var b in levelArray) {
+                        if (!levelArray.hasOwnProperty(b) || !buildVal[b]) continue;
+                        popBuilding += Math.round(buildVal[b].pop * Math.pow(levelArray[b], buildVal[b].pop_factor));
+                    }
+
+                    var totalPopSpace = popMax * popFactor + popPlow + popExtra;
+                    var maxUnitsPop = totalPopSpace - popBuilding;
+                    var usedUnitsPop = parseInt(totalPopSpace - (popBuilding + town.getAvailablePopulation()), 10);
+
+                    if (usedUnitsPop < 0 || !isFinite(usedUnitsPop)) {
+                        continue;
+                    }
+
+                    if (usedUnitsPop < 300) {
+                        autoTownTypes[town.id] = "po";
+                    }
+
+                    if (maxUnitsPop > 0) {
+                        var percent = Math.round(100 / maxUnitsPop * usedUnitsPop);
+                        if (percent < 0) { percent = 0; }
+                        if (percent > 100) { percent = 100; }
+
+                        population[town.id] = {
+                            max: maxUnitsPop,
+                            buildings: popBuilding,
+                            units: usedUnitsPop,
+                            percent: percent
+                        };
+                    }
+                } catch (e) {
+                    // ignore population calc errors, keep existing type if any
+                }
+            }
         }
-    };
 
-    // Initialize
-    function init() {
-        if (uw.Game && uw.ITowns) {
-            TownIcons.init();
-        } else {
-            setTimeout(init, 500);
+        function initIconsOnceReady() {
+            var tries = 0;
+            var check = setInterval(function () {
+                tries++;
+                if ($('.town_name_area').length && $('#minimap_islands_layer').length) {
+                    clearInterval(check);
+
+                    loadWorldVars();
+                    computeAutoTownTypes();
+                    TownIcons.activate();
+                    TownIcons.Map.activate();
+                    TownList.activate();
+
+                    // periodic refresh of auto types and percentages
+                    setInterval(function () {
+                        computeAutoTownTypes();
+                        TownIcons.changeTownIcon();
+                        TownIcons.Map.activate();
+                        TownList.change();
+                    }, 900000);
+                } else if (tries > 60) {
+                    clearInterval(check);
+                }
+            }, 500);
         }
-    }
 
-    init();
+        initIconsOnceReady();
+    });
 })();

@@ -10,8 +10,8 @@ A collection of tools for Grepolis packed as a Chrome extension.
 -   [ ] Smilies: Extends the bbcode bar by a smiley box
 -   [ ] Unit strength: Adds unit strength tables in various areas
 -   [ ] Transport capacity: Shows the occupied and available transport capacity in the unit menu
--   [ ] Percentual trade: Extends the trade window by a percentual trade
--   [ ] Recruiting trade: Extends the trade window by a recruiting trade
+-   [x] Percentual trade: Extends the trade window by a percentual trade
+-   [x] Recruiting trade: Extends the trade window by a recruiting trade
 -   [ ] Conquests: Counts the attacks/supports in the conquest window
 -   [ ] Troop speed: Displays improved troop speed in the attack/support window
 -   [ ] Simulator: Adaptation of the simulator layout & permanent display of the extended modifier box
@@ -21,20 +21,20 @@ A collection of tools for Grepolis packed as a Chrome extension.
 -   [x] Daily reward: Minimizes the daily reward window on startup
 -   [ ] Defense form: Extends the bbcode bar by an automatic defense form
 -   [ ] Unit Comparison: Adds unit comparison tables
--   [ ] Town icons: Each city receives an icon for the town type (automatic detection)
--   [ ] Town list: Adds the town icons to the town list
--   [ ] Map: Sets the town icons on the strategic map
--   [ ] Context menu: Swaps "Select town" and "City overview" in the context menu
+-   [x] Town icons: Each city receives an icon for the town type (automatic detection)
+-   [x] Town list: Adds the town icons to the town list
+-   [x] Map: Sets the town icons on the strategic map
+-   [x] Context menu: Swaps "Select town" and "City overview" in the context menu
 -   [ ] Sent units: Shows sent units in the attack/support window
 -   [ ] Town overview: Replaces the new town overview with the old window style
 -   [ ] Mouse wheel: You can change the views with the mouse wheel
--   [ ] Town bbcode: Adds the town bbcode to the town tab
+-   [x] Town bbcode: Adds the town bbcode to the town tab
 -   [ ] Statistics world: Adds a button to see the world stats
 -   [ ] Culture overview: Adds a count for parties in the culture overview
 -   [ ] Select unit helper: Improved a new tools on the attack and support window
 -   [ ] Units beyond view: Improved a new tools on the agorà window
--   [ ] Scrollbar Style: Improved a new style for the scrollbar
--   [ ] Trade resources for festivals: Improved a new button to trade the resources
+-   [x] Scrollbar Style: Improved a new style for the scrollbar
+-   [x] Trade resources for festivals: Improved a new button to trade the resources
 -   [ ] Calculator: Share the participation calculation
 -   [x] Keyboard shortcuts: It changes your life
 -   [ ] Thracian Conquest: Downsizing of the map of the Thracian conquest
